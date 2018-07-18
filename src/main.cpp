@@ -12,7 +12,7 @@
 
 using namespace std;
 
-
+/* 从命令行参数中获取ssd配置文件路径和workload配置文件路径 */
 void command_line_args(char* argv[], string& input_file_path, string& workload_file_path)
 {
 
@@ -36,6 +36,7 @@ void command_line_args(char* argv[], string& input_file_path, string& workload_f
 	}
 }
 
+/* 从ssd配置文件读取ssd配置 */
 void read_configuration_parameters(const string ssd_config_file_path, Execution_Parameter_Set* exec_params)
 {
 	ifstream ssd_config_file;
@@ -94,6 +95,7 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 	ssd_config_file.close();
 }
 
+/* 从workload配置文件读取workload配置 */
 std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(const string workload_defs_file_path)
 {
 	std::vector<std::vector<IO_Flow_Parameter_Set*>*>* io_scenarios = new std::vector<std::vector<IO_Flow_Parameter_Set*>*>;
@@ -249,6 +251,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 	return io_scenarios;
 }
 
+/* 从ssd和host收集结果输出至文件 */
 void collect_results(SSD_Device& ssd, Host_System& host, const char* output_file_path)
 {
 	Utils::XmlWriter xmlwriter;
@@ -273,6 +276,7 @@ void collect_results(SSD_Device& ssd, Host_System& host, const char* output_file
 	//cin.get();
 }
 
+/* 命令行参数个数不正确提示 */
 void print_help()
 {
 	cout << "MQSim - A simulator for modern NVMe and SATA SSDs developed at SAFARI group in ETH Zurich" << endl <<
@@ -290,36 +294,46 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	// 解析命令行参数
 	command_line_args(argv, ssd_config_file_path, workload_defs_file_path);
 
-	
+	// 读取ssd配置和workload配置
 	Execution_Parameter_Set* exec_params = new Execution_Parameter_Set;
 	read_configuration_parameters(ssd_config_file_path, exec_params);
 	std::vector<std::vector<IO_Flow_Parameter_Set*>*>* io_scenarios = read_workload_definitions(workload_defs_file_path);
 
+	// 依次仿真每个scenario
 	int cntr = 1;
 	for (auto io_scen = io_scenarios->begin(); io_scen != io_scenarios->end(); io_scen++, cntr++)
 	{
+		// 开始时间等信息
 		time_t start_time = time(0);
 		char* dt = ctime(&start_time);
 		PRINT_MESSAGE("MQSim started at " << dt)
 		PRINT_MESSAGE("******************************")
 		PRINT_MESSAGE("Executing scenario " << cntr << " out of " << io_scenarios->size() << " .......")
 
+		// 仿真器重置
 		//The simulator should always be reset, before starting the actual simulation
 		Simulator->Reset();
 
+		// 清空IO_Flow_Definitions
 		exec_params->Host_Configuration.IO_Flow_Definitions.clear();
 		for (auto io_flow_def = (*io_scen)->begin(); io_flow_def != (*io_scen)->end(); io_flow_def++)
 			exec_params->Host_Configuration.IO_Flow_Definitions.push_back(*io_flow_def);
 
+		// 创建ssd
 		SSD_Device ssd(&exec_params->SSD_Device_Configuration, &exec_params->Host_Configuration.IO_Flow_Definitions);//Create SSD_Device based on the specified parameters
+		
+		// 创建host，并加载ssd
 		exec_params->Host_Configuration.Input_file_path = workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of("."));//Create Host_System based on the specified parameters
 		Host_System host(&exec_params->Host_Configuration, exec_params->SSD_Device_Configuration.Enabled_Preconditioning, ssd.Host_interface);
 		host.Attach_ssd_device(&ssd);
 
+		// 开始仿真
 		Simulator->Start_simulation();
 
+		// 结束时间
 		time_t end_time = time(0);
 		dt = ctime(&end_time);
 		PRINT_MESSAGE("MQSim finished at " << dt)
@@ -327,6 +341,7 @@ int main(int argc, char* argv[])
 		PRINT_MESSAGE("Total simulation time: " << duration / 3600 << ":" << (duration % 3600) / 60 << ":" << ((duration % 3600) % 60))
 		PRINT_MESSAGE("");
 
+		// 输出结果至文件
 		PRINT_MESSAGE("Writing results to output file .......");
 		collect_results(ssd, host, (workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of(".")) + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
 	}

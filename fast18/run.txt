@@ -1,0 +1,17 @@
+backend-contention:
+.\MQSim.exe -i ..\..\fast18\backend-contention\ssdconfig-backend-contention.xml -w ..\..\fast18\backend-contention\workload-backend-contention-flow-1.xml
+.\MQSim.exe -i ..\..\fast18\backend-contention\ssdconfig-backend-contention.xml -w ..\..\fast18\backend-contention\workload-backend-contention-flow-2.xml
+.\MQSim.exe -i ..\..\fast18\backend-contention\ssdconfig-backend-contention.xml -w ..\..\fast18\backend-contention\workload-backend-contention-flow-1-flow-2.xml
+
+data-cache-contention:
+.\MQSim.exe -i ..\..\fast18\data-cache-contention\ssdconfig-datacache-contention.xml -w ..\..\fast18\data-cache-contention\workload-datacache-contention-flow-1.xml
+.\MQSim.exe -i ..\..\fast18\data-cache-contention\ssdconfig-datacache-contention.xml -w ..\..\fast18\data-cache-contention\workload-datacache-contention-flow-2.xml
+.\MQSim.exe -i ..\..\fast18\data-cache-contention\ssdconfig-datacache-contention.xml -w ..\..\fast18\data-cache-contention\workload-datacache-contention-flow-1-flow-2.xml
+
+queue-fetch-size:
+.\MQSim.exe -i ..\..\fast18\queue-fetch-size\ssdconfig-queue-fetch-size=16.xml -w ..\..\fast18\queue-fetch-size\workload-queue-fetch-size-flow-1.xml
+.\MQSim.exe -i ..\..\fast18\queue-fetch-size\ssdconfig-queue-fetch-size=16.xml -w ..\..\fast18\queue-fetch-size\workload-queue-fetch-size-flow-2.xml
+.\MQSim.exe -i ..\..\fast18\queue-fetch-size\ssdconfig-queue-fetch-size=16.xml -w ..\..\fast18\queue-fetch-size\workload-queue-fetch-size-flow-1-flow-2.xml
+.\MQSim.exe -i ..\..\fast18\queue-fetch-size\ssdconfig-queue-fetch-size=1024.xml -w ..\..\fast18\queue-fetch-size\workload-queue-fetch-size-flow-1.xml
+.\MQSim.exe -i ..\..\fast18\queue-fetch-size\ssdconfig-queue-fetch-size=1024.xml -w ..\..\fast18\queue-fetch-size\workload-queue-fetch-size-flow-2.xml
+.\MQSim.exe -i ..\..\fast18\queue-fetch-size\ssdconfig-queue-fetch-size=1024.xml -w ..\..\fast18\queue-fetch-size\workload-queue-fetch-size-flow-1-flow-2.xml
